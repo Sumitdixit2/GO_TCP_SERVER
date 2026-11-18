@@ -39,5 +39,6 @@ func handleconnection(conn net.Conn) {
 	}
 
 	message := string(buffer[:n])
-	conn.Write([]byte(message))
+	fmt.Println("message from the client is: ", message)
+	conn.Write([]byte("hello client this is the server nd i got your message right here"))
 }
