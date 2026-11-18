@@ -1,0 +1,12 @@
+Build a server that:
+1. Listens on localhost:8080.
+2. Accepts incoming TCP connections.
+3. Reads data from the client.
+4. Sends the same data back.
+5. Handles multiple clients using goroutines.
+Your client should be able to send:
+Hello from my laptop!
+
+
+And receive:
+Hello from my laptop!
