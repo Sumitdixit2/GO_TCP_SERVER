@@ -6,6 +6,21 @@ import (
 	"net"
 )
 
+type newconn struct {
+	RemoteAddress net.Addr
+	LocalAddress  net.Addr
+	Received      string
+	Bytes         int
+}
+
+func (c *newconn) printres() {
+	fmt.Println("New Connection!")
+	fmt.Println("Remote Address: ", c.RemoteAddress)
+	fmt.Println("Local Address: ", c.LocalAddress)
+	fmt.Println("Received: ", c.Received)
+	fmt.Println("Bytes Received: ", c.Bytes)
+}
+
 func main() {
 	listener, err := net.Listen("tcp", ":8080")
 
@@ -24,7 +39,7 @@ func main() {
 			continue
 		}
 
-		handleconnection(conn)
+		go handleconnection(conn)
 	}
 }
 
@@ -39,6 +54,10 @@ func handleconnection(conn net.Conn) {
 	}
 
 	message := string(buffer[:n])
-	fmt.Println("message from the client is: ", message)
+
+	newconn := newconn{RemoteAddress: conn.RemoteAddr(), LocalAddress: conn.LocalAddr(), Received: message, Bytes: n}
+
+	newconn.printres()
+
 	conn.Write([]byte("hello client this is the server nd i got your message right here"))
 }
