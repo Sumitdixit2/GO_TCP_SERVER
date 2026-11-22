@@ -13,7 +13,7 @@ type httpheader struct {
 	Accept     string
 }
 
-type repheaders struct {
+type reqheaders struct {
 	Content_Type   string
 	Content_Length int
 }
@@ -22,19 +22,19 @@ type httpreq struct {
 	Method          string
 	Path            string
 	HttpHeaders     httpheader
-	ResponseHeaders repheaders
+	ResponseHeaders reqheaders
 	data            json.Delim
 }
 
-func (r *httpreq) sendreq(conn net.Conn) error {
+func (r *httpreq) sendreq(conn net.Conn) (int, error) {
 	message := r.Method + "\r\n" + r.Path + "\r\n" + string(r.HttpHeaders.Host) + string(r.HttpHeaders.User_Agent) + string(r.HttpHeaders.Accept) + "\r\n" + string(r.ResponseHeaders.Content_Length) + string(r.ResponseHeaders.Content_Type) + "\r\n\r\n" + string(r.data)
-	_, err := fmt.Fprintf(conn, message)
+	n, err := fmt.Fprintf(conn, message)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return n, nil
 }
 
 func main() {
@@ -48,13 +48,18 @@ func main() {
 
 	defer conn.Close()
 
-	_, err = fmt.Fprintf(conn, "hello server this is a tcp client message")
+	req := httpreq{
+		Method:          "GET",
+		Path:            "/user",
+		HttpHeaders:     httpheader{Host: "example.com", User_Agent: "mozilla", Accept: "*/*"},
+		ResponseHeaders: reqheaders{Content_Type: "application/json", Content_Length: 45},
+	}
+
+	_, err = req.sendreq(conn)
 
 	if err != nil {
 		log.Fatalf("Failed to read: %v", err)
 	}
-
-	fmt.Println("connection is: ", conn)
 
 	n, err := conn.Read(buffer)
 
