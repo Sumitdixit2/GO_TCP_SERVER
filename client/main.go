@@ -1,10 +1,41 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 )
+
+type httpheader struct {
+	Host       string
+	User_Agent string
+	Accept     string
+}
+
+type repheaders struct {
+	Content_Type   string
+	Content_Length int
+}
+
+type httpreq struct {
+	Method          string
+	Path            string
+	HttpHeaders     httpheader
+	ResponseHeaders repheaders
+	data            json.Delim
+}
+
+func (r *httpreq) sendreq(conn net.Conn) error {
+	message := r.Method + "\r\n" + r.Path + "\r\n" + string(r.HttpHeaders.Host) + string(r.HttpHeaders.User_Agent) + string(r.HttpHeaders.Accept) + "\r\n" + string(r.ResponseHeaders.Content_Length) + string(r.ResponseHeaders.Content_Type) + "\r\n\r\n" + string(r.data)
+	_, err := fmt.Fprintf(conn, message)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func main() {
 	buffer := make([]byte, 1024)
