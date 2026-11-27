@@ -4,21 +4,19 @@ import (
 	"fmt"
 	"log"
 	"net"
+	httpparser "tcp-server/server/http_parser"
 )
 
-type newconn struct {
-	RemoteAddress net.Addr
-	LocalAddress  net.Addr
-	Received      string
-	Bytes         int
-}
+// goal is to umm... ig like take our res from client , parse the binary data into proper format
+// and then likee take the response then create an api which takes the req and then if the req is cool then we send a response
+//
+//what i need is the clientreq type and the client res type like what to send to the client...
 
-func (c *newconn) printres() {
-	fmt.Println("New Connection!")
-	fmt.Println("Remote Address: ", c.RemoteAddress)
-	fmt.Println("Local Address: ", c.LocalAddress)
-	fmt.Println("Received: ", c.Received)
-	fmt.Println("Bytes Received: ", c.Bytes)
+type res struct {
+	Version    string
+	StatusCode int
+	Headers    httpparser.HTTPHeaders
+	Body       []byte
 }
 
 func main() {
@@ -55,9 +53,9 @@ func handleconnection(conn net.Conn) {
 
 	message := string(buffer[:n])
 
-	newconn := newconn{RemoteAddress: conn.RemoteAddr(), LocalAddress: conn.LocalAddr(), Received: message, Bytes: n}
+	fmt.Println("data from client is: ", message)
 
-	newconn.printres()
+	httpparser.Parser(buffer[:n])
 
 	conn.Write([]byte("hello client this is the server nd i got your message right here"))
 }

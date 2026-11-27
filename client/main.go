@@ -33,7 +33,7 @@ func (r *HTTPRequest) SendReq(conn net.Conn) (int, error) {
 			"Accept: %s\r\n"+
 			"Content-Type: %s\r\n"+
 			"Content-Length: %d\r\n"+
-			"\r\n",
+			"\r\n"+"Body: %s",
 		r.Method,
 		r.Path,
 		r.Headers.Host,
@@ -41,6 +41,7 @@ func (r *HTTPRequest) SendReq(conn net.Conn) (int, error) {
 		r.Headers.Accept,
 		r.Headers.ContentType,
 		r.Headers.ContentLength,
+		r.Body,
 	)
 
 	n, err := io.WriteString(conn, message)
@@ -67,15 +68,12 @@ func main() {
 	}
 
 	body, err := json.Marshal(data)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer conn.Close()
-
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	req := HTTPRequest{
 		Method: "POST",
